@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>情侣飞行棋 | Cloudflare Pages</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-pink-100 to-violet-100">
+  <main class="mx-auto max-w-5xl p-6">
+    <header class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-violet-700">情侣飞行棋</h1>
+      <p class="mt-2 text-slate-600">Cloudflare Pages + Functions + D1 最小可用版本</p>
+    </header>
+
+    <section class="grid gap-6 md:grid-cols-2">
+      <article class="rounded-2xl bg-white p-5 shadow">
+        <h2 class="mb-4 text-xl font-semibold">提交关键词</h2>
+        <form id="submit-form" class="space-y-3">
+          <select id="category" class="w-full rounded-lg border px-3 py-2">
+            <option value="romance">浪漫任务</option>
+            <option value="challenge">亲密挑战</option>
+            <option value="reward">奖励</option>
+            <option value="punish">惩罚</option>
+            <option value="question">问题</option>
+          </select>
+          <textarea id="content" class="w-full rounded-lg border px-3 py-2" rows="4" placeholder="一行一条关键词"></textarea>
+          <input id="nickname" class="w-full rounded-lg border px-3 py-2" placeholder="昵称（可选）">
+          <button class="w-full rounded-lg bg-violet-600 px-4 py-2 font-semibold text-white hover:bg-violet-700" type="submit">提交到历史池</button>
+        </form>
+      </article>
+
+      <article class="rounded-2xl bg-white p-5 shadow">
+        <h2 class="mb-4 text-xl font-semibold">随机抽取</h2>
+        <div class="mb-3 flex gap-2">
+          <select id="random-category" class="w-full rounded-lg border px-3 py-2">
+            <option value="">全部分类</option>
+            <option value="romance">浪漫任务</option>
+            <option value="challenge">亲密挑战</option>
+            <option value="reward">奖励</option>
+            <option value="punish">惩罚</option>
+            <option value="question">问题</option>
+          </select>
+          <button id="draw-btn" class="rounded-lg bg-pink-500 px-4 py-2 font-semibold text-white hover:bg-pink-600">抽取</button>
+        </div>
+        <div id="result" class="rounded-lg bg-slate-50 p-4 text-slate-700">点击“抽取”获取历史关键词</div>
+      </article>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
