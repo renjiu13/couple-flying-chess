@@ -8,46 +8,68 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body class="min-h-screen bg-gradient-to-br from-pink-100 to-violet-100">
-  <main class="mx-auto max-w-5xl p-6">
-    <header class="mb-8 text-center">
+  <main class="mx-auto max-w-6xl p-6">
+    <header class="mb-6 text-center">
       <h1 class="text-3xl font-bold text-violet-700">情侣飞行棋</h1>
-      <p class="mt-2 text-slate-600">Cloudflare Pages + Functions + D1 最小可用版本</p>
+      <p class="mt-2 text-slate-600">掷骰子、走格子、触发随机任务</p>
     </header>
 
-    <section class="grid gap-6 md:grid-cols-2">
+    <section class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
       <article class="rounded-2xl bg-white p-5 shadow">
-        <h2 class="mb-4 text-xl font-semibold">提交关键词</h2>
-        <form id="submit-form" class="space-y-3">
-          <select id="category" class="w-full rounded-lg border px-3 py-2">
-            <option value="romance">浪漫任务</option>
-            <option value="challenge">亲密挑战</option>
-            <option value="reward">奖励</option>
-            <option value="punish">惩罚</option>
-            <option value="question">问题</option>
-          </select>
-          <textarea id="content" class="w-full rounded-lg border px-3 py-2" rows="4" placeholder="一行一条关键词"></textarea>
-          <input id="nickname" class="w-full rounded-lg border px-3 py-2" placeholder="昵称（可选）">
-          <button class="w-full rounded-lg bg-violet-600 px-4 py-2 font-semibold text-white hover:bg-violet-700" type="submit">提交到历史池</button>
-        </form>
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-xl font-semibold">飞行棋主界面</h2>
+          <div class="flex items-center gap-2">
+            <label for="player-count" class="text-sm text-slate-600">玩家</label>
+            <select id="player-count" class="rounded-lg border px-2 py-1">
+              <option value="2">2 人</option>
+              <option value="3">3 人</option>
+              <option value="4">4 人</option>
+            </select>
+            <button id="reset-game-btn" class="rounded-lg border border-violet-300 px-3 py-1 text-sm text-violet-700 hover:bg-violet-50">重开</button>
+          </div>
+        </div>
+
+        <div id="board" class="board"></div>
       </article>
 
-      <article class="rounded-2xl bg-white p-5 shadow">
-        <h2 class="mb-4 text-xl font-semibold">随机抽取</h2>
-        <div class="mb-3 flex gap-2">
-          <select id="random-category" class="w-full rounded-lg border px-3 py-2">
-            <option value="">全部分类</option>
-            <option value="romance">浪漫任务</option>
-            <option value="challenge">亲密挑战</option>
-            <option value="reward">奖励</option>
-            <option value="punish">惩罚</option>
-            <option value="question">问题</option>
-          </select>
-          <button id="draw-btn" class="rounded-lg bg-pink-500 px-4 py-2 font-semibold text-white hover:bg-pink-600">抽取</button>
-        </div>
-        <div id="result" class="rounded-lg bg-slate-50 p-4 text-slate-700">点击“抽取”获取历史关键词</div>
-      </article>
+      <aside class="space-y-4">
+        <article class="rounded-2xl bg-white p-5 shadow">
+          <h3 class="mb-3 text-lg font-semibold">游戏控制</h3>
+          <div id="turn-info" class="mb-3 rounded-lg bg-slate-50 p-3 text-slate-700"></div>
+          <button id="roll-btn" class="w-full rounded-xl bg-pink-500 px-4 py-3 text-lg font-bold text-white hover:bg-pink-600">🎲 掷骰子</button>
+          <div id="dice-result" class="mt-3 rounded-lg bg-slate-50 p-3 text-center text-slate-700">等待掷骰</div>
+          <div id="winner-info" class="mt-3 hidden rounded-lg bg-emerald-100 p-3 font-semibold text-emerald-700"></div>
+        </article>
+
+        <article class="rounded-2xl bg-white p-5 shadow">
+          <h3 class="mb-3 text-lg font-semibold">玩家进度</h3>
+          <ul id="player-list" class="space-y-2"></ul>
+        </article>
+
+        <article class="rounded-2xl bg-white p-5 shadow">
+          <h3 class="mb-3 text-lg font-semibold">贡献关键词</h3>
+          <form id="submit-form" class="space-y-3">
+            <select id="category" class="w-full rounded-lg border px-3 py-2">
+              <option value="romance">浪漫任务</option>
+              <option value="challenge">亲密挑战</option>
+              <option value="reward">奖励</option>
+              <option value="punish">惩罚</option>
+              <option value="question">问题</option>
+            </select>
+            <textarea id="content" class="w-full rounded-lg border px-3 py-2" rows="3" placeholder="一行一条关键词"></textarea>
+            <input id="nickname" class="w-full rounded-lg border px-3 py-2" placeholder="昵称（可选）">
+            <button class="w-full rounded-lg bg-violet-600 px-4 py-2 font-semibold text-white hover:bg-violet-700" type="submit">提交到历史池</button>
+          </form>
+        </article>
+      </aside>
     </section>
   </main>
+
+  <dialog id="task-dialog" class="task-dialog">
+    <h3 class="mb-2 text-lg font-semibold">事件格触发</h3>
+    <div id="task-content" class="mb-4 rounded-lg bg-slate-50 p-3 text-slate-700"></div>
+    <button id="close-task-btn" class="rounded-lg bg-violet-600 px-4 py-2 font-semibold text-white">完成</button>
+  </dialog>
 
   <script src="./script.js"></script>
 </body>
