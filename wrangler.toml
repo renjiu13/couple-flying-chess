@@ -3,5 +3,5 @@ compatibility_date = "2026-04-14"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "flying-chess-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_name = "my-app-db"
+database_id = "2d00ccff-dac2-42ac-86a3-79678b99114b"
