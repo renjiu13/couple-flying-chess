@@ -9,6 +9,8 @@ const playerCountEl = document.getElementById("player-count");
 const taskDialog = document.getElementById("task-dialog");
 const taskContentEl = document.getElementById("task-content");
 const closeTaskBtn = document.getElementById("close-task-btn");
+const toastEl = document.getElementById("toast");
+const loaderEl = document.getElementById("loader");
 
 const form = document.getElementById("submit-form");
 const colors = ["#ef4444", "#3b82f6", "#22c55e", "#f59e0b"];
@@ -21,6 +23,23 @@ const gameState = {
   currentPlayerIndex: 0,
   gameOver: false
 };
+
+function showToast(text, type = "success") {
+  toastEl.textContent = text;
+  toastEl.className = `toast ${type}`;
+  toastEl.classList.add("show");
+  setTimeout(() => {
+    toastEl.classList.remove("show");
+  }, 2000);
+}
+
+function showLoader() {
+  loaderEl.classList.add("show");
+}
+
+function hideLoader() {
+  loaderEl.classList.remove("show");
+}
 
 function createPlayers(count) {
   return Array.from({ length: count }, (_, index) => ({
@@ -39,7 +58,7 @@ function initGame() {
   gameState.gameOver = false;
   winnerInfoEl.classList.add("hidden");
   winnerInfoEl.textContent = "";
-  diceResultEl.textContent = "等待掷骰";
+  diceResultEl.textContent = "准备开始甜蜜回合";
   renderBoard();
   renderSideInfo();
 }
@@ -107,12 +126,26 @@ function nextTurn() {
 }
 
 async function fetchRandomTask() {
-  const response = await fetch("/api/random?count=1");
-  if (!response.ok) return "事件触发，但暂时拉取任务失败。";
-  const list = await response.json();
-  if (!Array.isArray(list) || list.length === 0) return "事件触发：历史池为空，请先提交关键词。";
-  const item = list[0];
-  return `【${item.category}】${item.content}`;
+  const placeholders = ["想想抽哪个～", "甜蜜加载中✨", "马上就好啦～"];
+  let index = 0;
+  taskContentEl.textContent = placeholders[0];
+  const timer = setInterval(() => {
+    taskContentEl.textContent = placeholders[index % placeholders.length];
+    index += 1;
+  }, 120);
+
+  showLoader();
+  try {
+    const response = await fetch("/api/random?count=1");
+    if (!response.ok) return "事件触发，但暂时拉取任务失败。";
+    const list = await response.json();
+    if (!Array.isArray(list) || list.length === 0) return "暂无甜蜜指令～快去提交一个吧❤️";
+    const item = list[0];
+    return `【${item.category}】${item.content}`;
+  } finally {
+    clearInterval(timer);
+    hideLoader();
+  }
 }
 
 async function handleRoll() {
@@ -136,8 +169,9 @@ async function handleRoll() {
 
   if (currentPlayer.finished) {
     gameState.gameOver = true;
-    winnerInfoEl.textContent = `恭喜 ${currentPlayer.name} 获胜！`;
+    winnerInfoEl.textContent = `恭喜 ${currentPlayer.name} 获胜！终极甜蜜王者诞生啦～`;
     winnerInfoEl.classList.remove("hidden");
+    showToast("本局结束，快开启下一局吧✨");
     rollBtn.disabled = false;
     return;
   }
@@ -145,7 +179,10 @@ async function handleRoll() {
   if (EVENT_CELLS.has(currentPlayer.position)) {
     const task = await fetchRandomTask();
     taskContentEl.textContent = task;
+    taskContentEl.classList.add("result-highlight");
+    setTimeout(() => taskContentEl.classList.remove("result-highlight"), 800);
     taskDialog.showModal();
+    showToast("触发事件格，甜蜜任务来了～❤️");
   }
 
   if (dice !== 6) {
@@ -170,7 +207,7 @@ form.addEventListener("submit", async (event) => {
   const nickname = document.getElementById("nickname").value.trim();
 
   if (!content) {
-    alert("请先输入关键词内容");
+    showToast("请输入想和TA玩的小指令～", "error");
     return;
   }
 
@@ -180,17 +217,30 @@ form.addEventListener("submit", async (event) => {
     .filter(Boolean);
 
   let okCount = 0;
-  for (const line of lines) {
-    const response = await fetch("/api/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ category, content: line, nickname })
-    });
-    if (response.ok) okCount += 1;
+  showLoader();
+  try {
+    for (const line of lines) {
+      const response = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category, content: line, nickname })
+      });
+      if (response.ok) okCount += 1;
+    }
+  } finally {
+    hideLoader();
   }
 
-  alert(`提交完成：${okCount}/${lines.length}`);
+  if (okCount === lines.length) {
+    showToast("指令已加入甜蜜池～❤️");
+  } else {
+    showToast(`提交成功 ${okCount}/${lines.length} 条`, "error");
+  }
   document.getElementById("content").value = "";
+});
+
+window.addEventListener("load", () => {
+  hideLoader();
 });
 
 initGame();
